@@ -2,6 +2,11 @@ body {
 	font-family: 'Raleway', sans-serif;
 }
 
+/* widget page */
+.widget-center {
+    text-align: center !important; /* Centra il contenuto orizzontalmente */
+}
+
 
 /* ============= css related to chats =============== */
 
