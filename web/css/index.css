@@ -69,7 +69,7 @@ iframe {
     */
     /* prod */
     position: fixed !important;
-    bottom: 5% !important; /* Distanza dal basso */
+    bottom: 1rem !important; /* Distanza dal basso */
     right: 15px !important; /* Distanza dalla destra */
     width: 350px !important; /* Larghezza desiderata */
     height: 550px !important; /* Altezza desiderata */

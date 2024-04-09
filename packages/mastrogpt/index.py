@@ -11,7 +11,7 @@ def main(arg):
             {
                 "name": "OpenAI",
                 "url": "openai/chat"
-            },
+            }
         ]
     }
     return {"body": data}
