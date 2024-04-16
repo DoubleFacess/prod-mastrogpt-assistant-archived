@@ -2,10 +2,21 @@ body {
 	font-family: 'Raleway', sans-serif;
 }
 
-/* widget page */
-.widget-center {
-    text-align: center !important; /* Centra il contenuto orizzontalmente */
+.main-container {
+    display: flex; /* Abilita il layout flexbox */
+    justify-content: center; /* Centra gli elementi lungo l'asse orizzontale */
+    align-items: top; /* Centra gli elementi lungo l'asse verticale */
+    height: 100vh; /* Altezza del contenitore pari all'altezza della viewport */
+    flex-direction: column; /* Imposta la direzione dei flex items su colonna */
+    text-align: center; /* Allinea il testo al centro all'interno del contenitore */
+	
 }
+
+.widget-center {
+    /* Aggiungi eventuali stili specifici per gli elementi h1 e span qui */
+	padding-top: 2rem;	
+}
+
 
 
 /* ============= css related to chats =============== */
