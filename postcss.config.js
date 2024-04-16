@@ -6,6 +6,6 @@ module.exports = {
     require('autoprefixer'),
     // minifies the CSS if in production
     isProduction ? require('cssnano') : null,
-    // removes any null elements we may have because of the conditional
+  // removes any null elements we may have because of the conditional
   ].filter(Boolean),
 };

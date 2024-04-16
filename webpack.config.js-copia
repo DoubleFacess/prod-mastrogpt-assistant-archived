@@ -9,7 +9,7 @@ const { version } = require('./package.json');
 const semver = require('semver');
 
 // extract the major (left-most) number
-const { major } = semver.parse(version)
+const { major } = semver.parse(version);
 
 module.exports = {
   entry: './src/index.ts',
@@ -18,7 +18,7 @@ module.exports = {
     library: 'GreeterTest',
     libraryTarget: 'umd',
     libraryExport: 'default',
-    path: path.resolve(__dirname, 'web/js', `v${major}`),
+    path: path.resolve(__dirname, 'dist', `v${major}`),
     filename: `widget${isProduction ? '.min' : ''}.js`,
   },
   resolve: {

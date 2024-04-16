@@ -1,0 +1,22 @@
+.
+├── .devcontainer.json
+├── dirs.txt
+├── dist
+│   ├── v1
+│   │   └── widget.js
+├── .env
+├── .env.example
+├── .git
+├── .gitignore
+├── index.html
+├── node_modules
+├── package.json
+├── package-lock.json
+├── packages
+├── postcss.config.js
+├── README.md
+├── src
+│   ├── template.ts
+│   └── index.ts
+├── tsconfig.json
+└── webpack.config.js
