@@ -15,7 +15,7 @@ module.exports = {
   entry: './src/index.ts',
   mode: isProduction ? 'production' : 'development',
   output: {
-    library: 'GreeterTest',
+    library: 'NuvolarisAssistant',
     libraryTarget: 'umd',
     libraryExport: 'default',
     path: path.resolve(__dirname, 'web/js', `v${major}`),

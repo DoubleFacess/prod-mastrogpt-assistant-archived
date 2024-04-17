@@ -8,12 +8,12 @@ test('hello world!')
 
 const WC_TAG_NAME = 'my-widget'
 
-declare const GreeterTest: any
+declare const NuvolarisAssistant: any
 
 /* @@ init function @@ */
 
 function init() {
-    const widget = GreeterTest('Enzonav is Great Programmer!!')
+    const widget = NuvolarisAssistant('Enzonav is Great Programmer!!')
 
     setTimeout(() => {
         widget.greeting = 'This is another message!'
