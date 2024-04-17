@@ -1,4 +1,8 @@
 import { createTemplate } from './template'
+import {test} from './main'
+import * as starter from './main'
+
+test('hello world!')
 
 /* @@ costants @@ */
 
@@ -21,6 +25,7 @@ function init() {
 window.onload = init
 
 /* @@ core library @@ */
+
 export default function createComponent(greeting: string) {
   const template = createTemplate(greeting)
 
