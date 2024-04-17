@@ -1,19 +1,23 @@
 import { createTemplate } from './template'
 
+/* @@ costants @@ */
+
 const WC_TAG_NAME = 'my-widget'
 
 declare const GreeterTest: any
 
-// Funzione per eseguire il codice al termine del caricamento della pagina
+/* @@ init function @@ */
+
 function init() {
-    const widget = GreeterTest('Enzonav loves stinky feet')
+    const widget = GreeterTest('Enzonav is Great Programmer!!')
 
     setTimeout(() => {
         widget.greeting = 'This is another message!'
     }, 3000)
 }
 
-// Esegui runAfterPageLoad al termine del caricamento della pagina
+/* @@ start on load @@ */
+
 window.onload = init
 
 /* @@ core library @@ */
