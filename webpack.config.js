@@ -15,7 +15,11 @@ module.exports = {
   entry: './src/index.ts',
   mode: isProduction ? 'production' : 'development',
   output: {
+<<<<<<< Updated upstream
     library: 'NuvolarisAssistant',
+=======
+    library: 'MastroGptWidget',
+>>>>>>> Stashed changes
     libraryTarget: 'umd',
     libraryExport: 'default',
     path: path.resolve(__dirname, 'web/js', `v${major}`),

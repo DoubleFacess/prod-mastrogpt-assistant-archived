@@ -1,8 +1,8 @@
 
-import styles from './index.css';
+import styles from './index.css'
 
 export function createTemplate(greeting: string) {
-  const template = document.createElement('template');
+  const template = document.createElement('template')
 
   template.innerHTML = `
     <style>${styles.toString()}</style>
@@ -11,5 +11,5 @@ export function createTemplate(greeting: string) {
     </div>
   `;
 
-  return template;
+  return template
 }
