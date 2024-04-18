@@ -1,9 +1,5 @@
 
-<<<<<<< Updated upstream
-import styles from './index.css'
-=======
 import styles from './assets/css/index.css';
->>>>>>> Stashed changes
 
 export function createTemplate(greeting: string) {
   const template = document.createElement('template')
