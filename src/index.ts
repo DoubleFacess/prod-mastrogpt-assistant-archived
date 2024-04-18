@@ -1,32 +1,22 @@
-import createComponent from './createWebConponent'
-//import {Constants} from './constants'
-//import {test} from './main'
-//import * as starter from './main'
-//test('hello world!')
+import { createTemplate } from './template'
+import {test} from './main'
+import * as starter from './main'
 
-<<<<<<< Updated upstream
 test('hello world!')
 
 /* @@ costants @@ */
 
 const WC_TAG_NAME = 'my-widget'
 
-declare const NuvolarisAssistant: any
-=======
-declare const MastroGptWidget: any
->>>>>>> Stashed changes
+declare const GreeterTest: any
 
 /* @@ init function @@ */
 
 function init() {
-<<<<<<< Updated upstream
-    const widget = NuvolarisAssistant('Enzonav is Great Programmer!!')
-=======
-    const widget = MastroGptWidget('Need refactor all libraries')
->>>>>>> Stashed changes
+    const widget = GreeterTest('Enzonav is Great Programmer!!')
 
     setTimeout(() => {
-        widget.greeting = 'Hard life for programmers!'
+        widget.greeting = 'This is another message!'
     }, 3000)
 }
 
@@ -34,6 +24,53 @@ function init() {
 
 window.onload = init
 
+/* @@ core library @@ */
 
+export default function createComponent(greeting: string) {
+  const template = createTemplate(greeting)
+
+  class GreeterWidgetElement extends HTMLElement {
+    constructor() {
+      super()
+  
+      const shadowDOM = this.attachShadow({ mode: 'open' })
+      // Render the template in the shadow dom
+      shadowDOM.appendChild(template.content.cloneNode(true))
+    }
+
+    get greeting(): string {
+      const greetingEl = this.shadowRoot?.querySelector(
+        '.greeting'
+      )
+
+      return greetingEl?.textContent || '';
+    }
+
+    set greeting(val: string) {
+      const greetingEl = this.shadowRoot?.querySelector(
+        '.greeting'
+      );
+
+      if (greetingEl) {
+        greetingEl.textContent = val;  
+      }
+    }
+  }
+
+  if (!customElements.get(WC_TAG_NAME)) {
+    customElements.define(WC_TAG_NAME, GreeterWidgetElement);
+  }
+
+  // create an instance of the component
+  const componentInstance = document.createElement(WC_TAG_NAME, {
+    is: WC_TAG_NAME,
+  });
+
+  // mount the component instance in the body element
+  const container = document.body;
+  container.appendChild(componentInstance);
+
+  return componentInstance;
+}
 
 
