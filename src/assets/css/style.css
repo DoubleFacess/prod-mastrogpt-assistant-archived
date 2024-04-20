@@ -132,14 +132,37 @@ button:hover {
 }
 
 .chat-window {    
-    width: 300px;
-    height: 400px;
+    width: 350px;
+    height: 500px;
     position: absolute;
     bottom: 80px;
     right: 0%;        
     background-color: #fff;
     border: 1px solid #ccc;
-    border-radius: 8px;
+    border-radius: 10px 10px 10px 10px;
+	box-shadow: 0px 2px 10px 1px #b5b5b5;
     box-shadow: 0 2px 10px rgba(0,0,0,0.1);
     flex-direction: column;
 }
+
+.chat_header {
+	height: 60px;
+	background: #1DA1CE;
+	border-radius: 10px 10px 0px 0px;
+	padding: 5px;
+	font-size: 20px;
+}
+
+.chat_header_title {
+    color: white;
+    /*
+    text-align: center;
+    text-align: justify;
+    margin-top: 1rem;
+    padding: 1,5rem;
+    */
+    margin-left: auto; /* Imposta il margine sinistro automatico per centrare */
+    margin-right: auto; /* Imposta il margine destro automatico per centrare */
+}
+
+/*old widget css */

@@ -1,6 +1,9 @@
 import * as dom from './dom-utils'
 export const Constants = {
+    TITLE: 'Nuvolaris OpenChat Assistant',
     WC_TAG_NAME: 'my-widget',
+    TOKEN_LIMIT: 1000, // Adjust this value as needed
+    SPECIAL_TOKEN_BUFFER: 10,
     YOUR_TOKEN: '89773db3-7863-460c-ad3c-6abd0db43f1c',
     API_URL: 'https://vnavarra.nuvolaris.dev/api/my/openai/chat',
     //const profileId = _getEl('profile-id')
