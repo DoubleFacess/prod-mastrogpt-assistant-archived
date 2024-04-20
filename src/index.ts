@@ -40,52 +40,60 @@ export default function createComponent() {
       this.addEventListeners()
     }
 
-    get test(): any | null {
+    get _shadowRoot(): any {
       return this.shadowRoot
-    }
+    }    
 
     render(): void {
       if(this.shadowRoot) {        
         this.shadowRoot.innerHTML = `
           <style>${styles}</style>
           <button class="toggle-chat-btn">${this.isOpen ? NewIcons.closeIcon : NewIcons.chatIcon}</button>
-        `
-      }
-    }    
-        
-    rendercopy(): void {
-      if(this.shadowRoot) {
-        this.shadowRoot.innerHTML = `
-          <style>${styles}</style>
-          <button class="toggle-chat-btn">${this.isOpen ? NewIcons.closeIcon : NewIcons.chatIcon}</button>
-          <div class="chat-window">
+          <div class="chat-window" style="display: ${this.isOpen ? 'flex' : 'none'};">
             <button class="close-btn">×</button>
             <div class="chat-log">
               ${this.messages
-                .map(
-                  (msg) => `<div class="message ${msg.role}">${msg.content}</div>`
-                )
-                .join("")}
+                .map((msg) => `<div class="message ${msg.role}">${msg.content}</div>`)
+                .join("")
+              }
             </div>
             <div class="chat-input">
-              <input type="text" placeholder="Type a message...">
-              <button class="send-btn" ${this.apiPending ? "disabled" : ""}>Send</button>
+                <input type="text" placeholder="Type a message...">
+                <button class="send-btn" ${this.apiPending ? "disabled" : ""}>Send</button>
+              </div>
             </div>
-          </div>
         `
       }
+    }    
+    
+    /* methods */
+
+    handleCloseButtonClick(event: any): void {
+      event.stopPropagation()
+      this.toggleChat()
+    }
+    handleToggleChatClick(event: any): void {
+      event.stopPropagation()
+      this.toggleChat()
+    }
+    toggleChat(): void {
+      this.isOpen = !this.isOpen
+      this.render()
+      this.addEventListeners() // Re-attach event listeners after rendering
     }
     
     addEventListeners(): void {
-      if(this.shadowRoot) {
-        /*
-        this.shadowRoot
+      
+      if(this.shadowRoot) {        
+        this._shadowRoot
           .querySelector(".toggle-chat-btn")
           .addEventListener("click", this.handleToggleChatClick.bind(this))
-        this.shadowRoot
+        
+        this._shadowRoot
           .querySelector(".close-btn")
           .addEventListener("click", this.handleCloseButtonClick.bind(this))
         this.shadowRoot
+        /*
           .querySelector(".send-btn")
           .addEventListener("click", this.handleSendButtonClick.bind(this))
         this.shadowRoot
@@ -94,7 +102,10 @@ export default function createComponent() {
         */
       }
     }
+
+    
   }
+
   if (!customElements.get("chat-bot")) {
     console.log('customElement defined')
     customElements.define("chat-bot", ChatBot)
