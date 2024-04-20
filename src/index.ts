@@ -1,28 +1,12 @@
 import { createTemplate } from './template'
+import styles from './assets/css/style.css';
 import {test} from './main'
 import {Constants} from './constants'
 import * as starter from './main'
 
 //test('hello world!')
 
-/*
-declare const NuvolarisAssistant: any
 
-/* @@ init function @@ */
-
-/*function init() {
-    const widget = NuvolarisAssistant()
-
-    setTimeout(() => {
-      widget.greeting = 'This is another message!'
-    }, 3000)
-}
-
-/* @@ start on load @@ */
-
-
-
-/* @@ core library @@ */
 
 export default function createComponent() {
 
@@ -47,8 +31,14 @@ export default function createComponent() {
       this.totalTokens = 0
       this.styles = ''
 
-      fetch('./style.css')  
-      .then(response => response.text())
+      fetch('/assets/css/style.css') 
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to load CSS file');
+        } console.log(response.text())
+        return response.text()
+      })      
+      /*
       .then(css => {        
         this.styles = css        
         this.render()
@@ -57,6 +47,7 @@ export default function createComponent() {
         console.log('event listener loaded')
       })
       .catch(e => console.log('error fetching style.css'))
+      */
 
       console.log('web components runs!')
       
