@@ -30,50 +30,17 @@ export default function createComponent() {
       this.thinkingTimeout = null 
       this.apiPending = false 
       this.totalTokens = 0
-      this.styles = ''
-
-      /*fetch('/assets/css/style.css') 
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('Failed to load CSS file');
-        } console.log(response.text())
-        return response.text()
-      })      
-      
-      .then(css => {        
-        this.styles = css        
-        this.render()
-        console.log('css loaded')
-        this.addEventListeners()
-        console.log('event listener loaded')
-      })
-      .catch(e => console.log('error fetching style.css'))
-      */
-
-      /*
-      fetch('/assets/css/style.css')  
-        .then(response => response.text())
-        .then(css => {        
-          this.styles = css        
-          this.render()
-          console.log(this.styles)
-          console.log('css loaded')
-          this.addEventListeners()
-          console.log('event listener loaded')
-        })
-        .catch(e => console.log('error fetching style.css'))
-      console.log('web components runs!')
-      */      
+      this.styles = ''      
     }
 
 
-    connectedCallback() {
+    connectedCallback(): void {
       console.log('connected callback')      
       this.render()
       this.addEventListeners()
     }
 
-    get test() {
+    get test(): any | null {
       return this.shadowRoot
     }
 
@@ -84,33 +51,8 @@ export default function createComponent() {
           <button class="toggle-chat-btn">${this.isOpen ? NewIcons.closeIcon : NewIcons.chatIcon}</button>
         `
       }
-    }
-    
-    /*
-    loadAndRenderCSS() {
-      const Path = '/assets/css/style.css'
-      fetch(Path)
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('Failed to load CSS file');
-          }
-          return response.text()
-        .then(cssText => {
-          //const styleElement = document.createElement('style');
-          //styleElement.textContent = cssText;
-          //document.head.appendChild(styleElement);
-          console.log('CSS loaded successfully');
-        })
-        .catch(error => {
-          console.error('Error fetching or rendering CSS:', error);
-        })
-      })
-    }
-    */
-    
-    
-    
-    
+    }    
+        
     rendercopy(): void {
       if(this.shadowRoot) {
         this.shadowRoot.innerHTML = `
@@ -157,5 +99,37 @@ export default function createComponent() {
     console.log('customElement defined')
     customElements.define("chat-bot", ChatBot)
   }
+  /*fetch('/assets/css/style.css') 
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('Failed to load CSS file');
+        } console.log(response.text())
+        return response.text()
+      })      
+      
+      .then(css => {        
+        this.styles = css        
+        this.render()
+        console.log('css loaded')
+        this.addEventListeners()
+        console.log('event listener loaded')
+      })
+      .catch(e => console.log('error fetching style.css'))
+      */
+
+      /*
+      fetch('/assets/css/style.css')  
+        .then(response => response.text())
+        .then(css => {        
+          this.styles = css        
+          this.render()
+          console.log(this.styles)
+          console.log('css loaded')
+          this.addEventListeners()
+          console.log('event listener loaded')
+        })
+        .catch(e => console.log('error fetching style.css'))
+      console.log('web components runs!')
+      */
 }
 createComponent()
