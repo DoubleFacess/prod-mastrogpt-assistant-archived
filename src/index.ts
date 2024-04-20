@@ -52,6 +52,7 @@ export default function createComponent() {
             </div>
             <button class="close-btn">×</button>
             <div class="chat-log" id="chats">
+              <div class="clearfix"></div>
               ${this.messages
                 .map((msg) => `<div class="message ${msg.role}">${msg.content}</div>`)
                 .join("")
@@ -115,6 +116,7 @@ export default function createComponent() {
       console.log("send function")
       /* @@ new code @@ */
       this.messages.push({ role: "user", content: message })
+      //this.setUserResponse(message)
       this.render()
       this.addEventListeners()      
       const thinkingMessage = {
@@ -183,29 +185,24 @@ export default function createComponent() {
     }
     setBotResponse(response: any): void {
       console.log(this.messages)
-      setTimeout(function () {
-
-      }, 500)
-      //const chat_class = utils.getSelector('.chats')
-      //chat_class && chat_class.insertAdjacentHTML('beforeend', botResponse.output)
-              
-      //this.render()
-      //this.addEventListeners()
-
     }
-    setBotResponseOld(response: any): void {
-      setTimeout(function () {
-        //_hideBotTyping()
-        if (response.length < 1) {
-          //let BotResponse = botMsgPrefix + FALLBACK_MSG + responseSuffix
-          //getChatClass.insertAdjacentHTML('beforeend', BotResponse);
-          //scrollToBottomOfResults()
-        } else {
-          //var BotResponse = botMsgPrefix + response + responseSuffix
-          //getChatClass.insertAdjacentHTML('beforeend', BotResponse)
-          //_scrollToBottomOfResults()
-        }
-      }, 500)
+    setUserResponse(message:string): void {
+      console.log('preparing userInput Response')
+      let respDiv = document.createElement('div')
+      const userImgDiv: string = '<div class="userAvatar">' + NewIcons.userImg +  '</div>'
+      const userMsgPrefix: string = userImgDiv + '<p class="userMsg">'
+      respDiv.className = 'msgUser'
+      respDiv.innerHTML = userMsgPrefix + message + Constants.responseSuffix
+      if(respDiv) {
+        this._shadowRoot.querySelector('.chats').appendChild(respDiv).style.display = "block"
+      }      
+      this.render()
+      this.addEventListeners() 
+      //userInpuclass.value = ""
+      //_scrollToBottomOfResults()
+      //_showBotTyping()
+      //return false
+  
     }
     toggleChat(): void {
       this.isOpen = !this.isOpen

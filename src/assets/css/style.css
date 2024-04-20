@@ -8,6 +8,15 @@
     /* Adjust the distance from the right */
     z-index: 9999;
     /* Ensure the chat bot appears above other content */
+    font-family: var(--font-family, Roboto, Helvetica, Arial, sans-serif);
+    font-size: var(--font-size-root, 100%);
+    font-weight: var(--font-weight-bold, 400);
+    line-height: var(--line-height, 1.75rem);
+}
+
+.clearfix {
+	margin-top: 2px;
+	margin-bottom: 2px;
 }
 
 .icon {
@@ -66,6 +75,23 @@ button:hover {
 
 .chat-log .message.user {
     color: black;
+}
+.userMsg {
+	animation: animateElement linear 0.2s;
+	animation-iteration-count: 1;
+	margin-top: 5px;
+	word-wrap: break-word;
+	padding: 10px;
+	float: right;
+	margin-right: 0.5em;
+	background: #fff;
+	color: black;
+	margin-bottom: 0.15em;
+	font-size: 13px;
+	max-width: 65%;
+	min-width: 15%;
+	border-radius: 20px 0px 20px 20px;
+	box-shadow: 0px 2px 5px 0px #9a828454;
 }
 
 .chat-log .message.assistant {
