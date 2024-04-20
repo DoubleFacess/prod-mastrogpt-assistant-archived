@@ -53,7 +53,8 @@ export default function createComponent() {
         this.styles = css        
         this.render()
         console.log('css loaded')
-        //this.addEventListeners()
+        this.addEventListeners()
+        console.log('event listener loaded')
       })
       .catch(e => console.log('error fetching style.css'))
 
@@ -62,9 +63,11 @@ export default function createComponent() {
     }    
 
     connectedCallback() {
+      console.log('connected callback')
       this.render()
       this.addEventListeners()
     }
+
     get test() {
       return this.shadowRoot
     }
