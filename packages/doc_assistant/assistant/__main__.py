@@ -1,9 +1,9 @@
 #--web true
 #--kind python:default
 
-import hello
+import assistant
 
 def main(args):
     return { 
-        "body": hello.hello(args)
+        "body": assistant.hello(args)
     }
