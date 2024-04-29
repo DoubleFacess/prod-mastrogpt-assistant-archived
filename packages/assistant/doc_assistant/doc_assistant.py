@@ -1,6 +1,7 @@
 class Config:
     MODEL = "gpt-35-turbo"
-    SITE = "critical-work.com"
+    # SITE = "critical-work.com"
+    SITE = "https://nuvolaris.github.io"
     START_PAGE = "mission"
     WELCOME = "Benenuti nell'assistente virtuale di Nuvolaris"
     ROLE = """
@@ -25,14 +26,42 @@ class ChatBot:
     def __init__(self, args):
         self.key = args.get("OPENAI_API_KEY", os.environ.get("OPENAI_API_KEY"))
         self.host = args.get("OPENAI_API_HOST", os.environ.get("OPENAI_API_HOST"))
-        self.ai =  AzureOpenAI(api_version="2023-12-01-preview", api_key=self.key, azure_endpoint=self.host)
+        self.ai =  AzureOpenAI(api_version="2023-12-01-preview", 
+                                api_key=self.key, 
+                                azure_endpoint=self.host
+                            )
+    def ask(self, input, role=Config.ROLE):
+        req = [ {"role": "system", "content": role}, 
+                {"role": "user", "content": input}]
+        print(req)        
+        try:
+            comp = self.ai.chat.completions.create(model=Config.MODEL, messages=req)
+            if len(comp.choices) > 0:
+                content = comp.choices[0].message.content
+                return content
+        except BadRequestError as e:
+            return Config.INAPPROPRIATE
+        except Exception as e:
+            return Config.OUT_OF_SERVICE
+        return None
+
+    def identify_topic(self, topics, input):
+        role = """
+                You are identifying the topic of a request in italian
+                among one and only one of those:  %s 
+                You only reply with the name of the topic.
+            """ % topics
+        request = "Request: %s. What is the topic?" % input
+        return self.ask(request, role=role)
+
 
 class Website:
     def __init__(self):
         self.name2id = {}
         self.sanitizer = Sanitizer()
         try: 
-            url = f"https://{Config.SITE}/wp-json/wp/v2/pages"
+            #url = f"https://{Config.SITE}/wp-json/wp/v2/pages"
+            url = Config.SITE
             content = requests.get(url).content.decode("UTF-8")
             self.name2id = { p['slug']: p['id'] for p in json.loads(content)  }
         except:
@@ -43,7 +72,8 @@ class Website:
             print(f"cannot find page {name}")
             id = self.name2id[Config.START_PAGE]    
         try:  
-            url = f"https://{Config.SITE}/wp-json/wp/v2/pages/{id}"
+            #url = f"https://{Config.SITE}/wp-json/wp/v2/pages/{id}"
+            url = Config.SITE
             print(url)
             content = requests.get(url).content
             #print(content)
@@ -71,7 +101,18 @@ def main(args):
     input = args.get("input", "")
 
     #name = args.get("name", "world")
-    return res
+    #return res
+
+    # start conversation
+    if input == "":      
+        html = Web.get_page_content_by_name(Config.START_PAGE)
+        if html:
+            res['html'] = html
+        else:
+            res['title'] = "Benvenuto."
+            res['message'] =  "https://{Config.SITE}/wp-json/wp/v2/pages"
+            #res['message'] =  Config.WELCOME
+        return {"body": res }
 
 """
 %cd packages/doc_assistant/assistant
