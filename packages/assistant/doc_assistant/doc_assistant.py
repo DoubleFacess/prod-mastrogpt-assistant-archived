@@ -80,10 +80,12 @@ class Website:
                     page_file_name = file_path.split('/')[-1].split('.')[0]
                     # Associa il nome della pagina al suo ID nel dizionario 'name2id'
                     page_id += 1 
-                    self.name2id = { page_id: page_file_name}
+                    #self.name2id = { page_id: page_file_name}
                     #self.name2id[page_file_name] = page_id
                     #self.name2id = { nav_links[page_id]: page_file_name }
-                    print(self.name2id) 
+                    self.name2id[page_file_name] = page_id
+                    
+            print(self.name2id)
             print('self.name2id formed')                    
         except:
             traceback.print_exc()        
