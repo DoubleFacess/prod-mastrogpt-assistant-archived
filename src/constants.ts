@@ -5,7 +5,7 @@ export const Constants = {
     TOKEN_LIMIT: 1000, // Adjust this value as needed
     SPECIAL_TOKEN_BUFFER: 10,
     YOUR_TOKEN: '89773db3-7863-460c-ad3c-6abd0db43f1c',
-    API_URL: 'https://vnavarra.nuvolaris.dev/api/my/openai/chat',
+    API_URL: 'https://vnavarra.nuvolaris.dev/api/my/assistant/doc_assistant',
     //const profileId = _getEl('profile-id')
     profileClass: dom.getSelector('.profile-class'),
     widgetElement: dom.getSelector('.widget'),

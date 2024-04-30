@@ -99,21 +99,20 @@ class Website:
             print(f"cannot find page {name}")
             id = self.name2id[Config.START_PAGE]    
         try:  
-            # url = f"https://{Config.SITE}/wp-json/wp/v2/pages/{id}"
-            # url = Config.SITE
-            url = "https://nuvolaris.github.io/nuvolaris/3.1.0/"
+            url = "https://nuvolaris.github.io/nuvolaris/3.1.0/" + Config.START_PAGE + ".html"
             print('url')
             print(url)
             content = requests.get(url).content
-            #print(content)
-            page = json.loads(content)
-            html =  page['content']['rendered']
-            html = self.sanitizer.sanitize(html)
+            soup = BeautifulSoup(content, 'html.parser')
+            # Esegui le operazioni desiderate sul documento HTML, ad esempio estrarre il testo o trovare determinati elementi
+            # Ad esempio, per estrarre il testo dell'elemento con la classe 'content':
+            # html = soup.find(class_='content').get_text()
+            html = soup.prettify()  # Solo un esempio, qui restituisci l'HTML "pulito" o "formattato"
             return html
         except:
             traceback.print_exc()
             return None
-    
+
     def topics(self):
         return ", ".join(self.name2id.keys())
 
@@ -122,38 +121,39 @@ class Website:
 AI = None
 Web = None
 
-
 def main(args):
-
     global AI, Web, Email
+    global AI, Web, Email
+    if AI is None: AI = ChatBot(args)    
+    if Web is None: Web = Website()
 
-    try:
-        # Assicurati che ChatBot e Website siano inizializzati
-        if AI is None: AI = ChatBot(args)    
-        if Web is None: Web = Website()
-        res = {"output": Config.WELCOME}
-        input_text = args.get("input", "")
-        # start conversation
-        if input_text == "":
-            html = Web.get_page_content_by_name(Config.START_PAGE)
-            if html:
-                res['html'] = html
-            else:
-                res['title'] = "Benvenuto."
-                res['message'] = f"Impossibile ottenere il contenuto della pagina di inizio."
-            return {"body": res}
+    res = {"output": Config.WELCOME}
+    input_text = args.get("input", "")
+    # start conversation
+    if input_text == "":
+        html = Web.get_page_content_by_name(Config.START_PAGE)
+        if html:
+            res['html'] = html
         else:
-            # Gestione di altri casi, se necessario
-            pass
-    except Exception as e:
-        # Gestione degli errori: restituisci una risposta "stupida" in caso di fallimento
-        #res = {"title": "Ops!", "message": "Qualcosa è andato storto. Non ho idea di cosa sia successo!"}
-        #return {"body": res}
-        traceback.print_exc()
-        return None
+            res['title'] = "Benvenuto."
+            res['message'] = f"Impossibile ottenere il contenuto della pagina di inizio."
+        return {"body": res}
 
-   
+    page = AI.identify_topic(Web.topics(), input)
+    print("topic ", page)
+    role = Config.ROLE
 
+    html = Web.get_page_content_by_name(page)
+    if html:
+        res['html'] = html
+        from bs4 import BeautifulSoup
+        role += BeautifulSoup(page, 'html.parser').get_text()
+        
+    output = AI.ask(input, role=role)
+    if output is None:
+        output = "Non posso rispondere a questa domanda... Forse può essere fraintesa. Puoi riformularla?"
+    res['output'] = output
+    return {"body": res }
 
 """
 %cd packages/doc_assistant/assistant
