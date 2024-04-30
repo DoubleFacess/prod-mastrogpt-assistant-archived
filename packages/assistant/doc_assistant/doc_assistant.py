@@ -24,8 +24,12 @@ from html_sanitizer import Sanitizer
 
 class ChatBot:
     def __init__(self, args):
-        self.key = args.get("OPENAI_API_KEY", os.environ.get("OPENAI_API_KEY"))
-        self.host = args.get("OPENAI_API_HOST", os.environ.get("OPENAI_API_HOST"))
+        OPENAI_API_KEY = '89773db3-7863-460c-ad3c-6abd0db43f1c'
+        OPENAI_API_HOST = 'https://openai.nuvolaris.io'
+        #self.key = args.get("OPENAI_API_KEY", os.environ.get("OPENAI_API_KEY"))
+        #self.host = args.get("OPENAI_API_HOST", os.environ.get("OPENAI_API_HOST"))
+        self.key = OPENAI_API_KEY
+        self.host = OPENAI_API_HOST
         self.ai =  AzureOpenAI(api_version="2023-12-01-preview", 
                                 api_key=self.key, 
                                 azure_endpoint=self.host
@@ -58,22 +62,29 @@ class Website:
     def __init__(self):
         self.name2id = {}
         self.sanitizer = Sanitizer()
+        print('init')
         try:
             url = "https://nuvolaris.github.io/nuvolaris/3.1.0/"
             content = requests.get(url).content.decode("UTF-8")
             # Inizializza il parser HTML
             soup = BeautifulSoup(content, 'html.parser')
             nav_links = soup.find_all(class_="nav-link")
+            print('links grabbed')
+            #print(nav_links)
             # Per ogni link, associa il nome della pagina al suo ID
+            page_id = 0
             for link in nav_links:
-                page_id = 1
                 page_name = link.text.strip()
                 file_path = link.get('href')
                 if file_path.endswith('.html'):
                     page_file_name = file_path.split('/')[-1].split('.')[0]
                     # Associa il nome della pagina al suo ID nel dizionario 'name2id'
-                    self.name2id = { page_file_name: page_id}
-                    page_id += 1                      
+                    page_id += 1 
+                    self.name2id = { page_id: page_file_name}
+                    #self.name2id[page_file_name] = page_id
+                    #self.name2id = { nav_links[page_id]: page_file_name }
+                    print(self.name2id) 
+            print('self.name2id formed')                    
         except:
             traceback.print_exc()        
     
