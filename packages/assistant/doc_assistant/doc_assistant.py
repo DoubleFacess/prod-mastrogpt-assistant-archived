@@ -37,6 +37,7 @@ class ChatBot:
     def ask(self, input, role=Config.ROLE):
         req = [ {"role": "system", "content": role}, 
                 {"role": "user", "content": input}]
+        print('request')
         print(req)        
         try:
             comp = self.ai.chat.completions.create(model=Config.MODEL, messages=req)
@@ -85,13 +86,15 @@ class Website:
                     #self.name2id = { nav_links[page_id]: page_file_name }
                     self.name2id[page_file_name] = page_id
                     
-            print(self.name2id)
+            #print(self.name2id)
             print('self.name2id formed')                    
         except:
             traceback.print_exc()        
     
-    def get_page_content_by_name(self, name):    
+    def get_page_content_by_name(self, name):
         id = self.name2id.get(name, -1)
+        print('page id')
+        print(id)
         if id == -1:
             print(f"cannot find page {name}")
             id = self.name2id[Config.START_PAGE]    
@@ -99,9 +102,10 @@ class Website:
             # url = f"https://{Config.SITE}/wp-json/wp/v2/pages/{id}"
             # url = Config.SITE
             url = "https://nuvolaris.github.io/nuvolaris/3.1.0/"
+            print('url')
             print(url)
             content = requests.get(url).content
-            print(content)
+            #print(content)
             page = json.loads(content)
             html =  page['content']['rendered']
             html = self.sanitizer.sanitize(html)
@@ -117,7 +121,7 @@ class Website:
 
 AI = None
 Web = None
-Email = None
+
 
 def main(args):
 
@@ -125,10 +129,8 @@ def main(args):
 
     try:
         # Assicurati che ChatBot e Website siano inizializzati
-        if AI is None:
-            AI = ChatBot(args)    
-        if Web is None:
-            Web = Website()
+        if AI is None: AI = ChatBot(args)    
+        if Web is None: Web = Website()
         res = {"output": Config.WELCOME}
         input_text = args.get("input", "")
         # start conversation
