@@ -1,8 +1,8 @@
 class Config:
     MODEL = "gpt-35-turbo"
-    # SITE = "critical-work.com"
-    SITE = "https://nuvolaris.github.io"
-    START_PAGE = "mission"
+    SITE = "critical-work.com"
+    #SITE = "https://nuvolaris.github.io"
+    START_PAGE = "about"
     WELCOME = "Benenuti nell'assistente virtuale di Nuvolaris"
     ROLE = """
         You are an employer of the startup Nuvolaris
@@ -17,7 +17,7 @@ class Config:
 
 import re, json, os
 import requests
-import bs4
+from bs4 import BeautifulSoup
 import traceback
 from openai import AzureOpenAI, BadRequestError
 from html_sanitizer import Sanitizer
@@ -46,37 +46,49 @@ class ChatBot:
         return None
 
     def identify_topic(self, topics, input):
-        role = """
-                You are identifying the topic of a request in italian
-                among one and only one of those:  %s 
-                You only reply with the name of the topic.
+        role = """You are identifying the topic of a request in italian
+                among one and only one of those:  %s You only reply with the name of the topic.
             """ % topics
         request = "Request: %s. What is the topic?" % input
         return self.ask(request, role=role)
 
 
 class Website:
+
     def __init__(self):
         self.name2id = {}
         self.sanitizer = Sanitizer()
-        try: 
-            #url = f"https://{Config.SITE}/wp-json/wp/v2/pages"
-            url = Config.SITE
+        try:
+            url = "https://nuvolaris.github.io/nuvolaris/3.1.0/"
             content = requests.get(url).content.decode("UTF-8")
-            self.name2id = { p['slug']: p['id'] for p in json.loads(content)  }
+            # Inizializza il parser HTML
+            soup = BeautifulSoup(content, 'html.parser')
+            nav_links = soup.find_all(class_="nav-link")
+            # Per ogni link, associa il nome della pagina al suo ID
+            for link in nav_links:
+                page_id = 1
+                page_name = link.text.strip()
+                file_path = link.get('href')
+                if file_path.endswith('.html'):
+                    page_file_name = file_path.split('/')[-1].split('.')[0]
+                    # Associa il nome della pagina al suo ID nel dizionario 'name2id'
+                    self.name2id = { page_file_name: page_id}
+                    page_id += 1                      
         except:
-            traceback.print_exc()
+            traceback.print_exc()        
+    
     def get_page_content_by_name(self, name):    
         id = self.name2id.get(name, -1)
         if id == -1:
             print(f"cannot find page {name}")
             id = self.name2id[Config.START_PAGE]    
         try:  
-            #url = f"https://{Config.SITE}/wp-json/wp/v2/pages/{id}"
-            url = Config.SITE
+            # url = f"https://{Config.SITE}/wp-json/wp/v2/pages/{id}"
+            # url = Config.SITE
+            url = "https://nuvolaris.github.io/nuvolaris/3.1.0/"
             print(url)
             content = requests.get(url).content
-            #print(content)
+            print(content)
             page = json.loads(content)
             html =  page['content']['rendered']
             html = self.sanitizer.sanitize(html)
@@ -88,31 +100,45 @@ class Website:
     def topics(self):
         return ", ".join(self.name2id.keys())
 
+
+
 AI = None
 Web = None
 Email = None
-   
+
 def main(args):
+
     global AI, Web, Email
-    if AI is None: AI = ChatBot(args)    
-    if Web is None: Web = Website()
 
-    res = { "output": Config.WELCOME }
-    input = args.get("input", "")
-
-    #name = args.get("name", "world")
-    #return res
-
-    # start conversation
-    if input == "":      
-        html = Web.get_page_content_by_name(Config.START_PAGE)
-        if html:
-            res['html'] = html
+    try:
+        # Assicurati che ChatBot e Website siano inizializzati
+        if AI is None:
+            AI = ChatBot(args)    
+        if Web is None:
+            Web = Website()
+        res = {"output": Config.WELCOME}
+        input_text = args.get("input", "")
+        # start conversation
+        if input_text == "":
+            html = Web.get_page_content_by_name(Config.START_PAGE)
+            if html:
+                res['html'] = html
+            else:
+                res['title'] = "Benvenuto."
+                res['message'] = f"Impossibile ottenere il contenuto della pagina di inizio."
+            return {"body": res}
         else:
-            res['title'] = "Benvenuto."
-            res['message'] =  "https://{Config.SITE}/wp-json/wp/v2/pages"
-            #res['message'] =  Config.WELCOME
-        return {"body": res }
+            # Gestione di altri casi, se necessario
+            pass
+    except Exception as e:
+        # Gestione degli errori: restituisci una risposta "stupida" in caso di fallimento
+        #res = {"title": "Ops!", "message": "Qualcosa è andato storto. Non ho idea di cosa sia successo!"}
+        #return {"body": res}
+        traceback.print_exc()
+        return None
+
+   
+
 
 """
 %cd packages/doc_assistant/assistant
