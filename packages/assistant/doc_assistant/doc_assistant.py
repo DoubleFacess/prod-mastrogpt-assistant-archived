@@ -3,7 +3,7 @@ class Config:
     NUV_SITE = "https://nuvolaris.github.io/nuvolaris/3.1.0/"
     SITE = "critical-work.com"
     #SITE = "https://nuvolaris.github.io"
-    START_PAGE = "about"
+    START_PAGE = "index"
     WELCOME = "Benenuti nell'assistente virtuale di Nuvolaris"
     ROLE = """
         You are an employer of the startup Nuvolaris
@@ -52,10 +52,12 @@ class ChatBot:
         return None
 
     def identify_topic(self, topics, input):
-        role = """You are identifying the topic of a request in italian
-                  among one and only one of those:  %s You only reply with the name of the topic.
+        role = """You are identifying the topic of a request in italian or in plain english
+                  among one and only one of those:  %s You may separate the topics from - and 
+                  consider the first word. You only reply with the name of the topic.
                 """ % topics
         request = "Request: %s. What is the topic?" % input
+        print(request)
         return self.ask(request, role=role)
 
 
@@ -71,6 +73,7 @@ class Website:
             # Inizializza il parser HTML
             soup = BeautifulSoup(content, 'html.parser')
             nav_links = soup.find_all(class_="nav-link")
+            #self.name2id['index'] = 'index.html'
             #print('get links', nav_links)
             #print(nav_links)
             page_id = 0
@@ -78,60 +81,49 @@ class Website:
                 page_name = link.text.strip()
                 url = link.get('href')
                 if url.endswith('.html'):
+                    page_id += 1
                     # Rimuovi query parameters dall'URL, se presenti
                     url_path = urlparse(url).path
-                    print('url paths', url_path)
+                    #print('url paths', url_path)
                     page_file_name = url_path.split('/')[-1].split('.')[0]
-                    self.name2id[page_file_name] = url_path                   
+                    if page_file_name == 'index':
+                        if url_path.count('/') == 1:  # Verifica se non ci sono sottodirectory
+                            page_file_name = 'index'
+                            url_path = 'index.html'
+                        else:
+                            # Prendi il nome del percorso URL senza il nome del file (ultimo elemento)
+                            path_name = '/'.join(url_path.split('/')[:-1])
+                            # Aggiungi il percorso al nome della pagina
+                            new_page_name = f"{page_name}_{path_name}"
+                            self.name2id[new_page_name] = url_path 
+                    self.name2id[page_file_name] = url_path                                              
             print(self.name2id)
             print('self.name2id ok')                    
         except:
             traceback.print_exc()
-    def __init__old(self):
-        self.name2id = {}
-        self.sanitizer = Sanitizer()
-        print('init')
-        try:
-            url = Config.NUV_SITE
-            content = requests.get(url).content.decode("UTF-8")
-            # Inizializza il parser HTML
-            soup = BeautifulSoup(content, 'html.parser')
-            nav_links = soup.find_all(class_="nav-link")
-            print('get links', nav_links)
-            #print(nav_links)
-            page_id = 0
-            for link in nav_links:
-                page_name = link.text.strip()
-                file_path = link.get('href')
-                if file_path.endswith('.html'):
-                    page_file_name = file_path.split('/')[-1].split('.')[0]                    
-                    page_id += 1
-                    self.name2id[page_file_name] = page_id                    
-            #print(self.name2id)
-            print('self.name2id ok')                    
-        except:
-            traceback.print_exc()        
+            
     
     def get_page_content_by_name(self, name):
-        id = self.name2id.get(name, -1)
-        my_name = self.name2id.get(id)
-        print(f'control page name: {my_name}')            
-        if id == -1:
+        page_url = self.name2id.get(name, -1)
+        #print('url: ', page_url)
+        #my_name = self.name2id.get(id)
+        #print(f'control page name: {my_name}')            
+        if page_url == -1:
             print(f"cannot find page {name}")
-            id = self.name2id[Config.START_PAGE]    
+            page_url = self.name2id[Config.START_PAGE]    
         try:  
-            url = f"https://nuvolaris.github.io/nuvolaris/3.1.0/{Config.START_PAGE}.html"
+            url = f"https://nuvolaris.github.io/nuvolaris/3.1.0/{page_url}"
             print('url: ' + url)            
-            content = requests.get(url).content
-            #print(content)
+            content = requests.get(url).content            
             soup = BeautifulSoup(content, 'html.parser')
-            print('soup')
-            print(soup)
+            #print('soup')
+            #print(soup)
             # Esegui le operazioni desiderate sul documento HTML, ad esempio estrarre il testo o trovare determinati elementi
             # Ad esempio, per estrarre il testo dell'elemento con la classe 'content':
             # html = soup.find(class_='content').get_text()
 
             html = soup.prettify()  # Solo un esempio, qui restituisci l'HTML "pulito" o "formattato"
+            #html = soup.find(class_='content').get_text()
             return html
         except:
             traceback.print_exc()
@@ -140,8 +132,6 @@ class Website:
     def topics(self):
         print(f"name2id keys{self.name2id.keys()}")
         return ", ".join(self.name2id.keys())
-
-
 
 AI = None
 Web = None
