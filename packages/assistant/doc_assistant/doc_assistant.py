@@ -1,5 +1,6 @@
 class Config:
     MODEL = "gpt-35-turbo"
+    NUV_SITE = "https://nuvolaris.github.io/nuvolaris/3.1.0/"
     SITE = "critical-work.com"
     #SITE = "https://nuvolaris.github.io"
     START_PAGE = "about"
@@ -21,6 +22,7 @@ from bs4 import BeautifulSoup
 import traceback
 from openai import AzureOpenAI, BadRequestError
 from html_sanitizer import Sanitizer
+from urllib.parse import urlparse
 
 class ChatBot:
     def __init__(self, args):
@@ -31,14 +33,13 @@ class ChatBot:
         self.key = OPENAI_API_KEY
         self.host = OPENAI_API_HOST
         self.ai =  AzureOpenAI(api_version="2023-12-01-preview", 
-                                api_key=self.key, 
-                                azure_endpoint=self.host
+                               api_key=self.key, 
+                               azure_endpoint=self.host
                             )
     def ask(self, input, role=Config.ROLE):
         req = [ {"role": "system", "content": role}, 
                 {"role": "user", "content": input}]
-        print('request')
-        print(req)        
+        print(f'request:{req}')              
         try:
             comp = self.ai.chat.completions.create(model=Config.MODEL, messages=req)
             if len(comp.choices) > 0:
@@ -52,8 +53,8 @@ class ChatBot:
 
     def identify_topic(self, topics, input):
         role = """You are identifying the topic of a request in italian
-                among one and only one of those:  %s You only reply with the name of the topic.
-            """ % topics
+                  among one and only one of those:  %s You only reply with the name of the topic.
+                """ % topics
         request = "Request: %s. What is the topic?" % input
         return self.ask(request, role=role)
 
@@ -65,48 +66,71 @@ class Website:
         self.sanitizer = Sanitizer()
         print('init')
         try:
-            url = "https://nuvolaris.github.io/nuvolaris/3.1.0/"
+            url = Config.NUV_SITE
             content = requests.get(url).content.decode("UTF-8")
             # Inizializza il parser HTML
             soup = BeautifulSoup(content, 'html.parser')
             nav_links = soup.find_all(class_="nav-link")
-            print('links grabbed')
+            #print('get links', nav_links)
             #print(nav_links)
-            # Per ogni link, associa il nome della pagina al suo ID
+            page_id = 0
+            for link in nav_links:
+                page_name = link.text.strip()
+                url = link.get('href')
+                if url.endswith('.html'):
+                    # Rimuovi query parameters dall'URL, se presenti
+                    url_path = urlparse(url).path
+                    print('url paths', url_path)
+                    page_file_name = url_path.split('/')[-1].split('.')[0]
+                    self.name2id[page_file_name] = url_path                   
+            print(self.name2id)
+            print('self.name2id ok')                    
+        except:
+            traceback.print_exc()
+    def __init__old(self):
+        self.name2id = {}
+        self.sanitizer = Sanitizer()
+        print('init')
+        try:
+            url = Config.NUV_SITE
+            content = requests.get(url).content.decode("UTF-8")
+            # Inizializza il parser HTML
+            soup = BeautifulSoup(content, 'html.parser')
+            nav_links = soup.find_all(class_="nav-link")
+            print('get links', nav_links)
+            #print(nav_links)
             page_id = 0
             for link in nav_links:
                 page_name = link.text.strip()
                 file_path = link.get('href')
                 if file_path.endswith('.html'):
-                    page_file_name = file_path.split('/')[-1].split('.')[0]
-                    # Associa il nome della pagina al suo ID nel dizionario 'name2id'
-                    page_id += 1 
-                    #self.name2id = { page_id: page_file_name}
-                    #self.name2id[page_file_name] = page_id
-                    #self.name2id = { nav_links[page_id]: page_file_name }
-                    self.name2id[page_file_name] = page_id
-                    
+                    page_file_name = file_path.split('/')[-1].split('.')[0]                    
+                    page_id += 1
+                    self.name2id[page_file_name] = page_id                    
             #print(self.name2id)
-            print('self.name2id formed')                    
+            print('self.name2id ok')                    
         except:
             traceback.print_exc()        
     
     def get_page_content_by_name(self, name):
         id = self.name2id.get(name, -1)
-        print('page id')
-        print(id)
+        my_name = self.name2id.get(id)
+        print(f'control page name: {my_name}')            
         if id == -1:
             print(f"cannot find page {name}")
             id = self.name2id[Config.START_PAGE]    
         try:  
-            url = "https://nuvolaris.github.io/nuvolaris/3.1.0/" + Config.START_PAGE + ".html"
-            print('url')
-            print(url)
+            url = f"https://nuvolaris.github.io/nuvolaris/3.1.0/{Config.START_PAGE}.html"
+            print('url: ' + url)            
             content = requests.get(url).content
+            #print(content)
             soup = BeautifulSoup(content, 'html.parser')
+            print('soup')
+            print(soup)
             # Esegui le operazioni desiderate sul documento HTML, ad esempio estrarre il testo o trovare determinati elementi
             # Ad esempio, per estrarre il testo dell'elemento con la classe 'content':
             # html = soup.find(class_='content').get_text()
+
             html = soup.prettify()  # Solo un esempio, qui restituisci l'HTML "pulito" o "formattato"
             return html
         except:
@@ -114,6 +138,7 @@ class Website:
             return None
 
     def topics(self):
+        print(f"name2id keys{self.name2id.keys()}")
         return ", ".join(self.name2id.keys())
 
 
@@ -122,11 +147,10 @@ AI = None
 Web = None
 
 def main(args):
-    global AI, Web, Email
-    global AI, Web, Email
+    global AI, Web    
     if AI is None: AI = ChatBot(args)    
     if Web is None: Web = Website()
-
+    print('into main')
     res = {"output": Config.WELCOME}
     input_text = args.get("input", "")
     # start conversation
@@ -138,9 +162,10 @@ def main(args):
             res['title'] = "Benvenuto."
             res['message'] = f"Impossibile ottenere il contenuto della pagina di inizio."
         return {"body": res}
-
+    print('weird code: topics')   
+    print(Web.topics())
     page = AI.identify_topic(Web.topics(), input)
-    print("topic ", page)
+    print("topic identified ", page)
     role = Config.ROLE
 
     html = Web.get_page_content_by_name(page)
