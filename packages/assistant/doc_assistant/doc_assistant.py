@@ -3,7 +3,7 @@ class Config:
     NUV_SITE = "https://nuvolaris.github.io/nuvolaris/3.1.0/"
     SITE = "critical-work.com"
     #SITE = "https://nuvolaris.github.io"
-    START_PAGE = "index"
+    START_PAGE = "about"
     WELCOME = "Benenuti nell'assistente virtuale di Nuvolaris"
     ROLE = """
         You are an employer of the startup Nuvolaris
@@ -28,6 +28,7 @@ class ChatBot:
     def __init__(self, args):
         OPENAI_API_KEY = '89773db3-7863-460c-ad3c-6abd0db43f1c'
         OPENAI_API_HOST = 'https://openai.nuvolaris.io'
+        print('init chatbot()')
         #self.key = args.get("OPENAI_API_KEY", os.environ.get("OPENAI_API_KEY"))
         #self.host = args.get("OPENAI_API_HOST", os.environ.get("OPENAI_API_HOST"))
         self.key = OPENAI_API_KEY
@@ -37,6 +38,7 @@ class ChatBot:
                                azure_endpoint=self.host
                             )
     def ask(self, input, role=Config.ROLE):
+        print('asking chatbot')
         req = [ {"role": "system", "content": role}, 
                 {"role": "user", "content": input}]
         print(f'request:{req}')              
@@ -65,8 +67,8 @@ class Website:
 
     def __init__(self):
         self.name2id = {}
-        self.sanitizer = Sanitizer()
-        print('init')
+        self.sanitizer = Sanitizer()        
+        print('init website()')
         try:
             url = Config.NUV_SITE
             content = requests.get(url).content.decode("UTF-8")
@@ -86,6 +88,9 @@ class Website:
                     url_path = urlparse(url).path
                     #print('url paths', url_path)
                     page_file_name = url_path.split('/')[-1].split('.')[0]
+                    nome_pagina_senza_trattino = page_file_name.replace("-", " ")
+                    self.name2id[page_file_name] = url_path
+                    """
                     if page_file_name == 'index':
                         if url_path.count('/') == 1:  # Verifica se non ci sono sottodirectory
                             page_file_name = 'index'
@@ -96,21 +101,43 @@ class Website:
                             # Aggiungi il percorso al nome della pagina
                             new_page_name = f"{page_name}_{path_name}"
                             self.name2id[new_page_name] = url_path 
-                    self.name2id[page_file_name] = url_path                                              
-            print(self.name2id)
+                    self.name2id[page_file_name] = url_path
+                    """                                             
+            #print(self.name2id)
             print('self.name2id ok')                    
         except:
             traceback.print_exc()
             
+    def partial_input(self, input_parziale):
+        pattern = '.*'.join(re.escape(parola) for parola in input_parziale.split('-'))
+        print("Items in self.name2id:", self.name2id.items())
+        matches = {nome: url for nome, 
+                   url in self.name2id.items() if re.match(pattern, nome)
+                }
+        return matches
+        """
+        matches = {nome: url for nome, 
+                   url in self.name2id.items() if re.match(pattern, nome)
+                }
+        return matches
+        """
     
     def get_page_content_by_name(self, name):
-        page_url = self.name2id.get(name, -1)
-        #print('url: ', page_url)
+        #page_url = self.name2id.get(name, -1)
+        print('url: ', page_url)
+        matches = self.partial_input(name)
+        print(matches)
+        if matches:
+            page_url = next(iter(matches.values()))
+        else:
+            print(f"cannot find page {name}")
+            page_url = self.name2id[Config.START_PAGE]
         #my_name = self.name2id.get(id)
         #print(f'control page name: {my_name}')            
         if page_url == -1:
             print(f"cannot find page {name}")
-            page_url = self.name2id[Config.START_PAGE]    
+            page_url = self.name2id[Config.START_PAGE]
+            print(page_url)
         try:  
             url = f"https://nuvolaris.github.io/nuvolaris/3.1.0/{page_url}"
             print('url: ' + url)            
@@ -143,6 +170,7 @@ def main(args):
     print('into main')
     res = {"output": Config.WELCOME}
     input_text = args.get("input", "")
+    print('input', input_text)
     # start conversation
     if input_text == "":
         html = Web.get_page_content_by_name(Config.START_PAGE)
@@ -153,7 +181,7 @@ def main(args):
             res['message'] = f"Impossibile ottenere il contenuto della pagina di inizio."
         return {"body": res}
     print('weird code: topics')   
-    print(Web.topics())
+    #print(Web.topics())
     page = AI.identify_topic(Web.topics(), input)
     print("topic identified ", page)
     role = Config.ROLE
@@ -163,6 +191,7 @@ def main(args):
         res['html'] = html
         from bs4 import BeautifulSoup
         role += BeautifulSoup(page, 'html.parser').get_text()
+        print('role', role)
         
     output = AI.ask(input, role=role)
     if output is None:
