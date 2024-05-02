@@ -19,7 +19,7 @@ class Config:
 import re, json, os
 import requests
 from bs4 import BeautifulSoup
-import traceback
+import traceback, random
 from openai import AzureOpenAI, BadRequestError
 from html_sanitizer import Sanitizer
 from urllib.parse import urlparse
@@ -104,7 +104,7 @@ class Website:
                     self.name2id[page_file_name] = url_path
                     """                                             
             #print(self.name2id)
-            print('self.name2id ok')                    
+            #print('self.name2id ok')                    
         except:
             traceback.print_exc()
             
@@ -123,34 +123,23 @@ class Website:
         """
     
     def get_page_content_by_name(self, name):
-        #page_url = self.name2id.get(name, -1)
+
+        page_url = self.name2id.get(name, -1)
         print('url: ', page_url)
         matches = self.partial_input(name)
         print(matches)
-        if matches:
-            page_url = next(iter(matches.values()))
-        else:
-            print(f"cannot find page {name}")
-            page_url = self.name2id[Config.START_PAGE]
-        #my_name = self.name2id.get(id)
-        #print(f'control page name: {my_name}')            
         if page_url == -1:
             print(f"cannot find page {name}")
             page_url = self.name2id[Config.START_PAGE]
-            print(page_url)
+            
         try:  
             url = f"https://nuvolaris.github.io/nuvolaris/3.1.0/{page_url}"
-            print('url: ' + url)            
+            print('selected url: ' + url)            
             content = requests.get(url).content            
-            soup = BeautifulSoup(content, 'html.parser')
-            #print('soup')
-            #print(soup)
-            # Esegui le operazioni desiderate sul documento HTML, ad esempio estrarre il testo o trovare determinati elementi
-            # Ad esempio, per estrarre il testo dell'elemento con la classe 'content':
-            # html = soup.find(class_='content').get_text()
-
-            html = soup.prettify()  # Solo un esempio, qui restituisci l'HTML "pulito" o "formattato"
-            #html = soup.find(class_='content').get_text()
+            soup = BeautifulSoup(content, 'html.parser')            
+            # Ad esempio, per estrarre il testo dell'elemento con la classe 'content':            
+            #html = soup.prettify()  # Solo un esempio, qui restituisci l'HTML "pulito" o "formattato"
+            html = soup.find(class_='content').get_text()
             return html
         except:
             traceback.print_exc()
