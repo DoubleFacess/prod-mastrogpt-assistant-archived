@@ -55,8 +55,7 @@ class ChatBot:
 
     def identify_topic(self, topics, input):
         role = """You are identifying the topic of a request in italian or in plain english
-                  among one and only one of those:  %s You may separate the topics from - and 
-                  consider the first word. You only reply with the name of the topic.
+                  among one and only one of those:  %s. You only reply with the name of the topic.
                 """ % topics
         request = "Request: %s. What is the topic?" % input
         print(request)
@@ -89,49 +88,29 @@ class Website:
                     #print('url paths', url_path)
                     page_file_name = url_path.split('/')[-1].split('.')[0]
                     nome_pagina_senza_trattino = page_file_name.replace("-", " ")
-                    self.name2id[page_file_name] = url_path
-                    """
-                    if page_file_name == 'index':
-                        if url_path.count('/') == 1:  # Verifica se non ci sono sottodirectory
-                            page_file_name = 'index'
-                            url_path = 'index.html'
-                        else:
-                            # Prendi il nome del percorso URL senza il nome del file (ultimo elemento)
-                            path_name = '/'.join(url_path.split('/')[:-1])
-                            # Aggiungi il percorso al nome della pagina
-                            new_page_name = f"{page_name}_{path_name}"
-                            self.name2id[new_page_name] = url_path 
-                    self.name2id[page_file_name] = url_path
-                    """                                             
+                    self.name2id[nome_pagina_senza_trattino] = url_path                                                            
             #print(self.name2id)
             #print('self.name2id ok')                    
         except:
             traceback.print_exc()
             
     def partial_input(self, input_parziale):
-        pattern = '.*'.join(re.escape(parola) for parola in input_parziale.split('-'))
+        pattern = '.*'.join(re.escape(word) for word in input_parziale.split('-'))
         print("Items in self.name2id:", self.name2id.items())
         matches = {nome: url for nome, 
                    url in self.name2id.items() if re.match(pattern, nome)
                 }
-        return matches
-        """
-        matches = {nome: url for nome, 
-                   url in self.name2id.items() if re.match(pattern, nome)
-                }
-        return matches
-        """
+        return matches        
     
     def get_page_content_by_name(self, name):
-
+        print('control name', name)
         page_url = self.name2id.get(name, -1)
         print('url: ', page_url)
         matches = self.partial_input(name)
         print(matches)
         if page_url == -1:
             print(f"cannot find page {name}")
-            page_url = self.name2id[Config.START_PAGE]
-            
+            page_url = self.name2id[Config.START_PAGE]            
         try:  
             url = f"https://nuvolaris.github.io/nuvolaris/3.1.0/{page_url}"
             print('selected url: ' + url)            
@@ -191,13 +170,11 @@ def main(args):
 """
 %cd packages/doc_assistant/assistant
 from assistant import *
-
 Web = Website()
-page = Web.get_page_content_by_name("mission") ; print(page)
+page = Web.get_page_content_by_name("mission") ; 
+print(page)
 from html_sanitizer import Sanitizer
 sanitizer = Sanitizer()
-
 Web.topics()
-
 """
 
