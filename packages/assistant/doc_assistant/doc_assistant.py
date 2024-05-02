@@ -55,7 +55,7 @@ class ChatBot:
 
     def identify_topic(self, topics, input):
         role = """You are identifying the topic of a request in italian or in plain english
-                  among one and only one of those:  %s. You only reply with the name of the topic.
+                  among one and only one of those: %s. You only reply with the name of the topic.
                 """ % topics
         request = "Request: %s. What is the topic?" % input
         print(request)
