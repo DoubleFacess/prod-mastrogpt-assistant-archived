@@ -155,16 +155,17 @@ export default function createComponent() {
           throw new Error("Network response failed")
         }
         const botResponse = await response.json()
+        console.log('botResponse', botResponse.body['output'])
         this.totalTokens += this.estimateTokens(
-          botResponse.output || "Sorry, I didn't understand that."
+          botResponse.body.output || "Sorry, I didn't understand that."
         )
         // Assuming the server returns a JSON object with a "content" key for the bot's reply
         this.messages.push({
           role: "assistant",
-          content: botResponse.output || "Sorry, I didn't understand that.",
+          content: botResponse.body['html'] || "Hello how are you?",
         })        
-        console.log("Response from OpenAi: " +  botResponse.output)        
-        this.setBotResponse(botResponse.output)        
+        console.log("Response from OpenAi: " +  botResponse.body)        
+        this.setBotResponse(botResponse.body['html'])        
       } catch (error) {
         console.error("There was a problem with the fetch operation:", error)
         this.messages.push({

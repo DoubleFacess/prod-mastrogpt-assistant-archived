@@ -1,20 +1,31 @@
 class Config:
     MODEL = "gpt-35-turbo"
     NUV_SITE = "https://nuvolaris.github.io/nuvolaris/3.1.0/"
+    MASTRO_GPT = "mastrogpt" | "MastroGpt" | "mastroGPT" | "MastroGPT"
+    NUVOLARIS = "Nuv" | "Nuvolaris"
     SITE = "critical-work.com"
     #SITE = "https://nuvolaris.github.io"
     START_PAGE = "about"
     WELCOME = "Benenuti nell'assistente virtuale di Nuvolaris"
     ROLE = """
-        You are an employer of the startup Nuvolaris
-        You always advice users about Nuvolaris documentation.
-        The user ask a information, you will check in the disposable documents and elaborate a valid answear.
-    """
+           ROLE: Nuvolaris Documentation Advisor
+           You are an employee of the startup Nuvolaris. 
+           You consistently advise users about Nuvolaris documentation.
+           When a user requests information, you will review the available 
+           page and formulate a valid answer.
+           If the page content exceeds 3000 characters, you will attempt to 
+           summarize the content you have, ensuring logical coherence with 
+           the page's content.
+        """
     EMAIL = "info@nuvolaris.io"
     THANKS = "Grazie di avermi fornito la tua email, ti contatterò presto."
     ERROR = "Purtroppo sembra che ci sia qualche problema a registrare la tua email."
     OUT_OF_SERVICE = "Ciao, purtroppo per oggi le batterie sono esaurite e quindi sono andato a ricaricarmi. Per oggi non posso più risponderti, torna domani."
     INAPPROPRIATE = "Temo che la tua richiesta possa essere fraintesa. Puoi riformularla in maniera più appropriata?"
+    DICTIONARY = {                
+                NUVOLARIS: START_PAGE + ".html",
+                MASTRO_GPT: "mastrogpt/index.html"
+            }
 
 import re, json, os
 import requests
@@ -23,6 +34,7 @@ import traceback, random
 from openai import AzureOpenAI, BadRequestError
 from html_sanitizer import Sanitizer
 from urllib.parse import urlparse
+from difflib import SequenceMatcher
 
 class ChatBot:
     def __init__(self, args):
@@ -41,7 +53,7 @@ class ChatBot:
         print('asking chatbot')
         req = [ {"role": "system", "content": role}, 
                 {"role": "user", "content": input}]
-        print(f'request:{req}')              
+        #print(f'request:{req}')              
         try:
             comp = self.ai.chat.completions.create(model=Config.MODEL, messages=req)
             if len(comp.choices) > 0:
@@ -54,9 +66,12 @@ class ChatBot:
         return None
 
     def identify_topic(self, topics, input):
+        print('topics', topics)
+        print('input: ', input)
         role = """You are identifying the topic of a request in italian or in plain english
-                  among one and only one of those: %s. You only reply with the name of the topic.
-                """ % topics
+                  among one and only one of those: %s. You only reply italian or english, depending the request, 
+                  with the name of the topic.
+               """ % topics
         request = "Request: %s. What is the topic?" % input
         print(request)
         return self.ask(request, role=role)
@@ -71,38 +86,85 @@ class Website:
         try:
             url = Config.NUV_SITE
             content = requests.get(url).content.decode("UTF-8")
-            # Inizializza il parser HTML
-            soup = BeautifulSoup(content, 'html.parser')
-            nav_links = soup.find_all(class_="nav-link")
-            #self.name2id['index'] = 'index.html'
-            #print('get links', nav_links)
-            #print(nav_links)
+            soup = BeautifulSoup(content, 'html.parser') # Inizializza il parser HTML
+            nav_links = soup.find_all(class_="nav-link")            
+            #print('get links', nav_links)            
             page_id = 0
             for link in nav_links:
                 page_name = link.text.strip()
                 url = link.get('href')
                 if url.endswith('.html'):
                     page_id += 1
-                    # Rimuovi query parameters dall'URL, se presenti
-                    url_path = urlparse(url).path
+                    url_path = urlparse(url).path # Rimuovi query parameters dall'URL, se presenti
                     #print('url paths', url_path)
                     page_file_name = url_path.split('/')[-1].split('.')[0]
-                    nome_pagina_senza_trattino = page_file_name.replace("-", " ")
-                    self.name2id[nome_pagina_senza_trattino] = url_path                                                            
-            #print(self.name2id)
-            #print('self.name2id ok')                    
+                    page_names = page_file_name.replace("-", " ") # toglie il trattino e meette uno spazio
+                    self.name2id[page_names] = url_path  # crea dizionario                                                           
+            #print(self.name2id) 
+            self.name2id.update(Config.DICTIONARY) # aggiungo i termini da configurazione       
         except:
             traceback.print_exc()
             
+    """
     def partial_input(self, input_parziale):
         pattern = '.*'.join(re.escape(word) for word in input_parziale.split('-'))
         print("Items in self.name2id:", self.name2id.items())
         matches = {nome: url for nome, 
                    url in self.name2id.items() if re.match(pattern, nome)
                 }
-        return matches        
+        return matches
+    """
+    def find_partial_matches(self, input_phrase, threshold=0.8):
+        matches = []
+        words = input_phrase.split()
+        for key, value in self.name2id.items():
+            for word in words:
+                if word in key:
+                    matches.append((key, value))
+                else:
+                    similarity = SequenceMatcher(None, word, key).ratio()
+                    if similarity >= threshold:
+                        matches.append((key, value))
+        return matches
+    """
+    def find_partial_matches(self, partial_key, threshold=0.8):
+        matches = []
+        for key, value in self.name2id.items():
+            if partial_key in key:
+                matches.append((key, value))
+            else:
+                similarity = SequenceMatcher(None, partial_key, key).ratio()
+                if similarity >= threshold:                    
+                    matches.append((key, value))            
+        return matches
+    """        
     
     def get_page_content_by_name(self, name):
+        print('get_page_content_by_name: name: ', name)        
+        matches = self.find_partial_matches(name)
+        print("ricorrenze: ", matches)        
+        #returned_match = max(matches, key=lambda x: len(x[0]))
+        returned_match = random.choice(matches)
+        page_url = self.name2id[returned_match[0]]
+        print(page_url)  # URL of the match with the longest key
+        if page_url == -1:
+            print(f"cannot find page {name}")
+            page_url = self.name2id[Config.START_PAGE]
+        try:  
+            url = f"https://nuvolaris.github.io/nuvolaris/3.1.0/{page_url}"
+            print('selected url: ' + url)            
+            content = requests.get(url).content            
+            soup = BeautifulSoup(content, 'html.parser')            
+            # Ad esempio, per estrarre il testo dell'elemento con la classe 'content':            
+            #html = soup.prettify()  # Solo un esempio, qui restituisci l'HTML "pulito" o "formattato"
+            html = soup.find(class_='content').get_text()
+            return html
+        except:
+            traceback.print_exc()
+            return None        
+    
+    """
+    def get_page_content_by_name_copy(self, name):
         print('control name', name)
         page_url = self.name2id.get(name, -1)
         print('url: ', page_url)
@@ -123,9 +185,10 @@ class Website:
         except:
             traceback.print_exc()
             return None
+    """
 
     def topics(self):
-        print(f"name2id keys{self.name2id.keys()}")
+        #print(f"name2id keys{self.name2id.keys()}")
         return ", ".join(self.name2id.keys())
 
 AI = None
@@ -137,8 +200,7 @@ def main(args):
     if Web is None: Web = Website()
     print('into main')
     res = {"output": Config.WELCOME}
-    input_text = args.get("input", "")
-    print('input', input_text)
+    input_text = args.get("input", "")    
     # start conversation
     if input_text == "":
         html = Web.get_page_content_by_name(Config.START_PAGE)
@@ -148,13 +210,15 @@ def main(args):
             res['title'] = "Benvenuto."
             res['message'] = f"Impossibile ottenere il contenuto della pagina di inizio."
         return {"body": res}
-    print('weird code: topics')   
+    print('input exists, go!', input_text)   
     #print(Web.topics())
+    #print('IMPORTANTE!: input', input)
     page = AI.identify_topic(Web.topics(), input)
-    print("topic identified ", page)
+    #print("topic identified ", page)
     role = Config.ROLE
 
-    html = Web.get_page_content_by_name(page)
+    #html = Web.get_page_content_by_name(page)
+    html = Web.get_page_content_by_name(input_text)
     if html:
         res['html'] = html
         from bs4 import BeautifulSoup
