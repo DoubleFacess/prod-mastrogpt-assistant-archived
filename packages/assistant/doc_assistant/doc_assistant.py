@@ -1,8 +1,6 @@
 class Config:
     MODEL = "gpt-35-turbo"
-    NUV_SITE = "https://nuvolaris.github.io/nuvolaris/3.1.0/"
-    MASTRO_GPT = "mastrogpt" | "MastroGpt" | "mastroGPT" | "MastroGPT"
-    NUVOLARIS = "Nuv" | "Nuvolaris"
+    NUV_SITE = "https://nuvolaris.github.io/nuvolaris/3.1.0/"    
     SITE = "critical-work.com"
     #SITE = "https://nuvolaris.github.io"
     START_PAGE = "about"
@@ -23,8 +21,8 @@ class Config:
     OUT_OF_SERVICE = "Ciao, purtroppo per oggi le batterie sono esaurite e quindi sono andato a ricaricarmi. Per oggi non posso più risponderti, torna domani."
     INAPPROPRIATE = "Temo che la tua richiesta possa essere fraintesa. Puoi riformularla in maniera più appropriata?"
     DICTIONARY = {                
-                NUVOLARIS: START_PAGE + ".html",
-                MASTRO_GPT: "mastrogpt/index.html"
+                "Nuvolaris": START_PAGE + ".html",
+                "MastroGpt": "mastrogpt/index.html"
             }
 
 import re, json, os
@@ -68,9 +66,8 @@ class ChatBot:
     def identify_topic(self, topics, input):
         print('topics', topics)
         print('input: ', input)
-        role = """You are identifying the topic of a request in italian or in plain english
-                  among one and only one of those: %s. You only reply italian or english, depending the request, 
-                  with the name of the topic.
+        role = """You are identifying the topic of a request in italian among one and only one of those: %s. 
+                  You only reply italian, traslating contents that you find, with the name of the topic.
                """ % topics
         request = "Request: %s. What is the topic?" % input
         print(request)
@@ -155,13 +152,31 @@ class Website:
             print('selected url: ' + url)            
             content = requests.get(url).content            
             soup = BeautifulSoup(content, 'html.parser')            
-            # Ad esempio, per estrarre il testo dell'elemento con la classe 'content':            
-            #html = soup.prettify()  # Solo un esempio, qui restituisci l'HTML "pulito" o "formattato"
-            html = soup.find(class_='content').get_text()
-            return html
+            article_tag = soup.find('article')
+            if article_tag:
+                # Trova e rimuove il tag con il contenuto indesiderato
+                for unwanted_tag in article_tag.find_all('strong'):
+                    if 'work in progress' in unwanted_tag.get_text().lower():
+                        unwanted_tag.decompose()
+                # Estrarre il contenuto del tag <article>
+                html = article_tag.prettify()
+                return html
+            else:
+                return None            
         except:
             traceback.print_exc()
-            return None        
+            return None
+        """
+            try:  
+            url = f"https://nuvolaris.github.io/nuvolaris/3.1.0/{page_url}"
+            print('selected url: ' + url)            
+            content = requests.get(url).content            
+            soup = BeautifulSoup(content, 'html.parser')            
+            # Ad esempio, per estrarre il testo dell'elemento con la classe 'content':            
+            html = soup.prettify()  # Solo un esempio, qui restituisci l'HTML "pulito" o "formattato"
+            #html = soup.find(class_='content').get_text()
+            return html
+        """        
     
     """
     def get_page_content_by_name_copy(self, name):
