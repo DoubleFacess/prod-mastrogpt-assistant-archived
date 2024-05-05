@@ -19,7 +19,8 @@ export default function createComponent() {
     private thinkingTimeout: NodeJS.Timeout | null 
     private apiPending: boolean
     private totalTokens: number
-    private styles: string  
+    private styles: string
+    
 
     constructor() {
 
@@ -31,7 +32,8 @@ export default function createComponent() {
       this.thinkingTimeout = null 
       this.apiPending = false 
       this.totalTokens = 0
-      this.styles = ''      
+      this.styles = ''
+      this.messages = [{ role: "assistant", content: "Benvenuto! Come posso aiutarti oggi?" }]; // Aggiungi il messaggio di benvenuto qui
     }
     get _shadowRoot(): any {
       return this.shadowRoot
@@ -65,7 +67,8 @@ export default function createComponent() {
             </div>
         `
       }
-    }    
+    }
+    
     
     /* methods */
 
