@@ -163,7 +163,19 @@ export default function createComponent() {
         this.messages.push({
           role: "assistant",
           content: botResponse.body['html'] || "Hello how are you?",
-        })        
+        })
+        /* new code */
+        // Scorri fino al nuovo messaggio
+        setTimeout(() => {
+          const chatLog = this._shadowRoot.querySelector(".chat-log")
+          if (chatLog) {
+            const lastMessage = chatLog.lastElementChild
+            if (lastMessage) {
+              lastMessage.scrollIntoView({ behavior: 'smooth', block: 'start' })
+            }
+          }
+        }, 0)
+
         console.log("Response from OpenAi: " +  botResponse.body)        
         this.setBotResponse(botResponse.body['html'])        
       } catch (error) {
