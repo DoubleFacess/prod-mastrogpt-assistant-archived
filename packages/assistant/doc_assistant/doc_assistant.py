@@ -20,7 +20,7 @@ class Config:
                 "Nuvolaris": START_PAGE + ".html",
                 "MastroGpt": "mastrogpt/index.html"
             }
-    SUMMARIZE_ROLE = "Summarize the following content, the response will be a summary that begins with the topic of the page:"
+    SUMMARIZE_ROLE = "You are a Nuvolaris' assistant. Summarize the following content:"
 
 import re, json, os
 import requests
@@ -46,11 +46,20 @@ class ChatBot:
                                azure_endpoint=self.host
                             )
         
-    def summarize_text(self, input):         
+    def summarize_text(self, input, content):         
         print('welcome in a new function')
         sys_role = "You are Summary AI."
-        req = [ {"role": "system", "content": sys_role}, 
-                {"role": "user", "content": f"{Config.SUMMARIZE_ROLE}\n\n{input}"}]
+        #, you have to translate your response in the language you will retrive from: {input}
+        req = [
+            {"role": "system", "content": sys_role},
+            {"role": "user",
+             "content": f"""You are a Nuvolaris' assistant. Rielaborate the following content: {Config.SUMMARIZE_ROLE}{content}\n\n;
+             using 60% of the words; remember to preserve any headings and links present in the original content; at bottom of your response, print
+             a list with the link and the text of rilevants sub topics"
+             """
+            }
+            
+        ]
         try:
             comp = self.ai.chat.completions.create(model=Config.MODEL, messages=req)
             if len(comp.choices) > 0:
@@ -219,7 +228,7 @@ def main(args):
         from bs4 import BeautifulSoup
         role += BeautifulSoup(page, 'html.parser').get_text()
         #print('role', role)
-        print(AI.summarize_text(html))
+        print(AI.summarize_text(input_text, html))
     output = AI.ask(input, role=role)
     if output is None:
         output = "Non posso rispondere a questa domanda... Forse può essere fraintesa. Puoi riformularla?"
