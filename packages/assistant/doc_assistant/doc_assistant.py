@@ -8,12 +8,8 @@ class Config:
     ROLE = """
            ROLE: Nuvolaris Documentation Advisor
            You are an employee of the startup Nuvolaris. 
-           You consistently advise users about Nuvolaris documentation.
-           When a user requests information, you will review the available 
-           page and formulate a valid answer.
-           If the page content exceeds 3000 characters, you will attempt to 
-           summarize the content you have, ensuring logical coherence with 
-           the page's content.
+           You consistently advise users about Nuvolaris documentation. When a user requests information, 
+           you will review the available  page and formulate a valid answer.           
         """
     EMAIL = "info@nuvolaris.io"
     THANKS = "Grazie di avermi fornito la tua email, ti contatterò presto."
@@ -24,6 +20,7 @@ class Config:
                 "Nuvolaris": START_PAGE + ".html",
                 "MastroGpt": "mastrogpt/index.html"
             }
+    SUMMARIZE_ROLE = "Summarize the following content, the response will be a summary that begins with the topic of the page:"
 
 import re, json, os
 import requests
@@ -33,6 +30,7 @@ from openai import AzureOpenAI, BadRequestError
 from html_sanitizer import Sanitizer
 from urllib.parse import urlparse
 from difflib import SequenceMatcher
+
 
 class ChatBot:
     def __init__(self, args):
@@ -47,6 +45,33 @@ class ChatBot:
                                api_key=self.key, 
                                azure_endpoint=self.host
                             )
+        
+    def summarize_text(self, input):         
+        print('welcome in a new function')
+        sys_role = "You are Summary AI."
+        req = [ {"role": "system", "content": sys_role}, 
+                {"role": "user", "content": f"{Config.SUMMARIZE_ROLE}\n\n{input}"}]
+        try:
+            comp = self.ai.chat.completions.create(model=Config.MODEL, messages=req)
+            if len(comp.choices) > 0:
+                content = comp.choices[0].message.content
+                return content
+        except BadRequestError as e:
+            return Config.INAPPROPRIATE
+        except Exception as e:
+            return Config.OUT_OF_SERVICE
+        return None
+        """
+        chat_history = []  # past user and assistant turns, for AI memory
+        chat_completion = client.chat.completions.create(
+        messages = system + chat_history + user,
+        model="gpt-3.5-turbo",
+        max_tokens=500, top_p=0.9
+        print(chat_completion.choices[0].message.content)
+        """
+
+
+
     def ask(self, input, role=Config.ROLE):
         print('asking chatbot')
         req = [ {"role": "system", "content": role}, 
@@ -66,8 +91,8 @@ class ChatBot:
     def identify_topic(self, topics, input):
         print('topics', topics)
         print('input: ', input)
-        role = """You are identifying the topic of a request in italian among one and only one of those: %s. 
-                  You only reply italian, traslating contents that you find, with the name of the topic.
+        role = """You are identifying the topic of a request one and only one of those: %s. 
+                  You will reply italian or english, or the language of the imput, telling the name of the topic ande language you retrive.
                """ % topics
         request = "Request: %s. What is the topic?" % input
         print(request)
@@ -114,7 +139,7 @@ class Website:
                     similarity = SequenceMatcher(None, word, key).ratio()
                     if similarity >= threshold:
                         matches.append((key, value))
-        return matches    
+        return matches
     
     def get_page_content_by_name(self, name):
         print('get_page_content_by_name: name: ', name)        
@@ -187,15 +212,14 @@ def main(args):
     page = AI.identify_topic(Web.topics(), input)
     #print("topic identified ", page)
     role = Config.ROLE
-
     #html = Web.get_page_content_by_name(page)
     html = Web.get_page_content_by_name(input_text)
     if html:
         res['html'] = html
         from bs4 import BeautifulSoup
         role += BeautifulSoup(page, 'html.parser').get_text()
-        print('role', role)
-        
+        #print('role', role)
+        print(AI.summarize_text(html))
     output = AI.ask(input, role=role)
     if output is None:
         output = "Non posso rispondere a questa domanda... Forse può essere fraintesa. Puoi riformularla?"
