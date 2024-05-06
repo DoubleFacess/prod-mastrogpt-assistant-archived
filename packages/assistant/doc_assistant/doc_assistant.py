@@ -102,15 +102,7 @@ class Website:
         except:
             traceback.print_exc()
             
-    """
-    def partial_input(self, input_parziale):
-        pattern = '.*'.join(re.escape(word) for word in input_parziale.split('-'))
-        print("Items in self.name2id:", self.name2id.items())
-        matches = {nome: url for nome, 
-                   url in self.name2id.items() if re.match(pattern, nome)
-                }
-        return matches
-    """
+    
     def find_partial_matches(self, input_phrase, threshold=0.8):
         matches = []
         words = input_phrase.split()
@@ -122,19 +114,7 @@ class Website:
                     similarity = SequenceMatcher(None, word, key).ratio()
                     if similarity >= threshold:
                         matches.append((key, value))
-        return matches
-    """
-    def find_partial_matches(self, partial_key, threshold=0.8):
-        matches = []
-        for key, value in self.name2id.items():
-            if partial_key in key:
-                matches.append((key, value))
-            else:
-                similarity = SequenceMatcher(None, partial_key, key).ratio()
-                if similarity >= threshold:                    
-                    matches.append((key, value))            
-        return matches
-    """        
+        return matches    
     
     def get_page_content_by_name(self, name):
         print('get_page_content_by_name: name: ', name)        
@@ -176,31 +156,7 @@ class Website:
             html = soup.prettify()  # Solo un esempio, qui restituisci l'HTML "pulito" o "formattato"
             #html = soup.find(class_='content').get_text()
             return html
-        """        
-    
-    """
-    def get_page_content_by_name_copy(self, name):
-        print('control name', name)
-        page_url = self.name2id.get(name, -1)
-        print('url: ', page_url)
-        matches = self.partial_input(name)
-        print(matches)
-        if page_url == -1:
-            print(f"cannot find page {name}")
-            page_url = self.name2id[Config.START_PAGE]            
-        try:  
-            url = f"https://nuvolaris.github.io/nuvolaris/3.1.0/{page_url}"
-            print('selected url: ' + url)            
-            content = requests.get(url).content            
-            soup = BeautifulSoup(content, 'html.parser')            
-            # Ad esempio, per estrarre il testo dell'elemento con la classe 'content':            
-            #html = soup.prettify()  # Solo un esempio, qui restituisci l'HTML "pulito" o "formattato"
-            html = soup.find(class_='content').get_text()
-            return html
-        except:
-            traceback.print_exc()
-            return None
-    """
+        """
 
     def topics(self):
         #print(f"name2id keys{self.name2id.keys()}")
@@ -256,4 +212,49 @@ from html_sanitizer import Sanitizer
 sanitizer = Sanitizer()
 Web.topics()
 """
+"""
+    def partial_input(self, input_parziale):
+        pattern = '.*'.join(re.escape(word) for word in input_parziale.split('-'))
+        print("Items in self.name2id:", self.name2id.items())
+        matches = {nome: url for nome, 
+                   url in self.name2id.items() if re.match(pattern, nome)
+                }
+        return matches
+"""
+
+"""
+    def get_page_content_by_name_copy(self, name):
+        print('control name', name)
+        page_url = self.name2id.get(name, -1)
+        print('url: ', page_url)
+        matches = self.partial_input(name)
+        print(matches)
+        if page_url == -1:
+            print(f"cannot find page {name}")
+            page_url = self.name2id[Config.START_PAGE]            
+        try:  
+            url = f"https://nuvolaris.github.io/nuvolaris/3.1.0/{page_url}"
+            print('selected url: ' + url)            
+            content = requests.get(url).content            
+            soup = BeautifulSoup(content, 'html.parser')            
+            # Ad esempio, per estrarre il testo dell'elemento con la classe 'content':            
+            #html = soup.prettify()  # Solo un esempio, qui restituisci l'HTML "pulito" o "formattato"
+            html = soup.find(class_='content').get_text()
+            return html
+        except:
+            traceback.print_exc()
+            return None
+"""
+"""
+    def find_partial_matches(self, partial_key, threshold=0.8):
+        matches = []
+        for key, value in self.name2id.items():
+            if partial_key in key:
+                matches.append((key, value))
+            else:
+                similarity = SequenceMatcher(None, partial_key, key).ratio()
+                if similarity >= threshold:                    
+                    matches.append((key, value))            
+        return matches
+    """        
 
