@@ -1,3 +1,16 @@
+/* mastrogpt css */
+.msg {
+    display: flex;
+    align-items: flex-end;
+    margin-bottom: 10px;
+}
+
+.right-msg {
+    flex-direction: row-reverse;
+}
+
+
+
 :host {
     display: block;
     position: fixed;
@@ -69,12 +82,15 @@ button:hover {
     border-bottom: 1px solid #ccc;
 }
 
-.chat-log .message {
+.chat-log .message {    
+    display: flex;
+    align-items: flex-end;
     margin-bottom: 10px;
 }
 
 .chat-log .message.user {
     color: black;
+    flex-direction: row-reverse;
 }
 .userMsg {
 	animation: animateElement linear 0.2s;
