@@ -67,10 +67,6 @@ export const NewConstants: any = {
     BOT_NAME: "BOT",
     PERSON_NAME: "YOU",
     // Page components
-    msgerForm: document.querySelector(".msger-inputarea"),
-    msgerInput: document.querySelector(".msger-input"),
-    msgerChat: document.querySelector(".msger-chat"),
-    titleChat: document.getElementById("chat-title"),
-    areaChat: document.getElementById("chat-area")    
+      
 }
 
