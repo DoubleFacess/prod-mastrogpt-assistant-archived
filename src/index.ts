@@ -8,11 +8,13 @@ export default function createComponent() {
 
     private isOpen: boolean = false
     private shadow: any | null
+    private apiPending: boolean
 
     constructor() {
 
       super()            
       this.isOpen = false
+      this.apiPending = false 
 
       this.shadow = this.attachShadow({mode: 'open'})
       
@@ -25,13 +27,14 @@ export default function createComponent() {
           <style>${styles}</style>
           <button class="toggle-chat-btn">${this.isOpen ? NewIcons.closeIcon : NewIcons.chatIcon}</button>
           <div class="chat-window" style="display: ${this.isOpen ? 'flex' : 'none'};">
-            <div class="msger-chat" id="chats">
-              <p id="test">Im a paragraph</p>
-            </di>
-          <div>
+            <div class="chat-header">Header</div>
+            <div class="chat-input">
+              <input type="text" placeholder="Type a message...">
+              <button class="send-btn" ${this.apiPending ? "disabled" : ""}>Send</button>
+            </div>
+          </div>
         `
-        this.bot('hello from bot')
-             
+        this.bot('hello from bot')             
       } else {
         console.log('there was an error!')
       }
