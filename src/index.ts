@@ -1,134 +1,59 @@
-import {Constants} from './constants'
-import {NewConstants} from './constants'
 import styles from './assets/css/style.css';
 import { NewIcons} from './constants'
 import {marked} from 'marked'
-/*
-import * as utils from './dom-utils'
-import { createTemplate } from './template'
-import {test} from './main'
-import * as starter from './main'
-*/
-
-//test('hello world!')
-
-
 
 export default function createComponent() {
-
-  /* uhhm */
-  
-  class Invoker {
-
-    private name: string
-    private url: string
-    private state: any
-
-
-    constructor(name: string, url: string) {
-      this.name = name
-      this.url = url
-      this.state = null
-    }
-  }
 
   class ChatBot extends HTMLElement {
 
     private isOpen: boolean = false
-    private messages: { role: string; content: string }[]
-    private thinkingTimeout: NodeJS.Timeout | null 
+    private shadow: any | null
     private apiPending: boolean
-    private totalTokens: number
-    private styles: string
-    msgerForm: any | null = null
-    private msgerInput: any =  null
-    private msgerChat: any =  document.querySelector('chat-bot')
-    private titleChat:any = null
-    private areaChat: any = null
 
     constructor() {
 
-      super()
-
-      this.attachShadow({ mode: 'open' })
-      this.isOpen = false 
-      this.messages = [] 
-      this.thinkingTimeout = null 
+      super()            
+      this.isOpen = false
       this.apiPending = false 
-      this.totalTokens = 0
-      this.styles = ''
-      this.messages = [{ role: "assistant", content: "Benvenuto! Come posso aiutarti oggi?" }]; // Aggiungi il messaggio di benvenuto qui
-    }
-    private get _shadowRoot(): any {
-      return this.shadowRoot
-    }
 
-    private _getElement(arg: string) {
-      try {
-        this.shadowRoot?.querySelector(arg)
-        console.log('shadows rooot Worksss')
-      } catch(e) {
-        console.log(e)
-      } 
-      finally {
-        console.log('get shadows rooot Worksss')
-        this._shadowRoot?.querySelector(arg)
-      } 
-    }
-
-    private bot(msg: string): void {
-      //appendMessage(NewConstants.BOT_NAME, NewConstants.BOT_IMG, "left", msg);
-    }
-
+      this.shadow = this.attachShadow({mode: 'open'})
+      
+    }    
+    
+    /* uhm chat-log or msger-chat */
     render(): any {
-      if(this.shadowRoot) {
-        //this.getElement('chat-window').innerHTML = "<p>Hello</p>"
-        //this.shadowRoot.querySelector('chat-window')
-        this.shadowRoot.innerHTML = `
+      if(this.shadow) {        
+        this.shadow.innerHTML = `
           <style>${styles}</style>
           <button class="toggle-chat-btn">${this.isOpen ? NewIcons.closeIcon : NewIcons.chatIcon}</button>
-          <div class="chat-window" style="display: ${this.isOpen ? 'flex' : 'none'};"><div>
+          <div class="chat-window" style="display: ${this.isOpen ? 'flex' : 'none'};">
+            <div class="chat-header">Header</div>
+            <div class="chat-input">
+              <input type="text" placeholder="Type a message...">
+              <button class="send-btn" ${this.apiPending ? "disabled" : ""}>Send</button>
+            </div>
+          </div>
         `
-        
+        this.bot('hello from bot')             
       } else {
         console.log('there was an error!')
       }
-    } 
-
-    private getElement(arg: string): any {      
-      if(this.shadowRoot) { 
-        return this._shadowRoot.querySelector(arg)
-      } else {
-        return document.querySelector(arg)
-      }
     }
-
-    connectedCallback(): void {
-      console.log('connected callback')      
-      this.render()
-      this.addEventListeners()
-    }
-
-    formatDate(date: any): any {
-      const h = '0' + date.getHours();
-      const m = '0' + date.getMinutes();
-      return `${h.slice(-2)}:${m.slice(-2)}`;
-    } 
-
     
-    /*
-    botMessage = this.bot('Please select a chat, clicking on one button on the top area.')
-    //<!--<div>${this.botMessage}</div>-->
-    private appendMessage(name: string, img: any, side: any, text: string): any {
-      if(this.shadowRoot) { 
-        const msgerForm: any = this.shadowRoot.querySelector('.msger-inputarea')
-        const msgerInput: any = this.shadowRoot.querySelector('.msger-input')
-        const msgerChat: any =  this.getElement('.chat-window')
-        const titleChat: any = this.shadowRoot.getElementById('chat-title')
-        const areaChat: any = this.shadowRoot.getElementById('chat-area')
-      }
-      //   Simple solution for small apps
-      console.log(text)
+    connectedCallback(): void {
+      console.log('connected callback')
+      this.render()
+      const chatWindow = this.shadow.querySelector('.msger-chat')
+      alert(chatWindow)
+      //this.appendMessage('BOT', null, 'right', 'hello')
+      this.addEventListeners()
+    }    
+     
+    /* methods */
+
+    appendMessage(name: string, img: any, side: string, text: string): any {
+      console.log('append message')
+      const msgerChat: any =  this.shadow.querySelector('.chat-window')
       let html = marked.parse(text)
       const msgHTML = `
         <div class="msg ${side}-msg">
@@ -140,19 +65,22 @@ export default function createComponent() {
               </div>
               <div class="msg-info-time"> ${this.formatDate(new Date())}</div>
             </div>
-            <div class="msg-text">${html}</div>
-          </div>
+          <div class="msg-text">${html}</div>
         </div>
-      `;  
-      this.msgerChat.insertAdjacentHTML('beforeend', msgHTML);
-      this.msgerChat.scrollTop += 500;
+      `
+      msgerChat.insertAdjacentHTML('beforeend', msgHTML)
     }
-    private bot(msg: string): void{
-      this.appendMessage(NewIcons.BOT_NAME, NewIcons.BOT_IMG, 'left', msg);
+
+    bot(msg: string): any {
+      //appendMessage(BOT_NAME, BOT_IMG, "left", msg)
+      this.appendMessage('Assistant', null, 'left', msg)
     }
-    */
-     
-    /* methods */
+
+    formatDate(date: any) {
+      const h = "0" + date.getHours();
+      const m = "0" + date.getMinutes();
+      return `${h.slice(-2)}:${m.slice(-2)}`;
+    }
 
     handleToggleChatClick(event: any): void {
       event.stopPropagation()
@@ -172,13 +100,22 @@ export default function createComponent() {
           .querySelector(".toggle-chat-btn")
           .addEventListener("click", this.handleToggleChatClick.bind(this))        
       }
-    }    
+    }
+
+    /* other code */
+    
+    private get _shadowRoot(): any {
+      return this.shadowRoot
+    }
+
   }
 
   if (!customElements.get("chat-bot")) {
     console.log('customElement defined')
     customElements.define("chat-bot", ChatBot)
   }
+
+  
 }
 createComponent()
   
