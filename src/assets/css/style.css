@@ -200,6 +200,7 @@ button:hover {
 .msg-bubble {
     max-width: 90%;
     padding: 15px;
+    margin: auto 1rem auto 1rem;
     border-radius: 15px;
     background: var(--left-msg-bg);
 }

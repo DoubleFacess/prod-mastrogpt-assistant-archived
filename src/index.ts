@@ -1,5 +1,5 @@
 import styles from './assets/css/style.css';
-import { NewIcons} from './constants'
+import { NewConstants, NewIcons} from './constants'
 import {marked} from 'marked'
 
 export default function createComponent() {
@@ -51,7 +51,7 @@ export default function createComponent() {
      
     /* methods */
 
-    appendMessage(name: string, img: any, side: string, text: string): any {
+    appendMessage(name: string, img: string, side: string, text: string): any {
       console.log('append message')
       const msgerChat: any =  this.shadow.querySelector('.chat-window')
       let html = marked.parse(text)
@@ -73,7 +73,7 @@ export default function createComponent() {
 
     bot(msg: string): any {
       //appendMessage(BOT_NAME, BOT_IMG, "left", msg)
-      this.appendMessage('Assistant', null, 'left', msg)
+      this.appendMessage('Assistant', NewConstants.BOT_IMG, 'left', msg)
     }
 
     formatDate(date: any) {
