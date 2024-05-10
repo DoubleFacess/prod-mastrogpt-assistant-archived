@@ -75,6 +75,10 @@ export default function createComponent() {
       //appendMessage(BOT_NAME, BOT_IMG, "left", msg)
       this.appendMessage('Assistant', NewConstants.BOT_IMG, 'left', msg)
     }
+    human(msg: string): any {
+      this.appendMessage(NewConstants.PERSON_NAME, NewConstants.PERSON_IMG, "right", msg)
+      this.shadow.querySelector('.chat-input').value = "";
+    }
 
     formatDate(date: any) {
       const h = "0" + date.getHours();

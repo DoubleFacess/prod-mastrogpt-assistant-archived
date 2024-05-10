@@ -1,10 +1,10 @@
-import {Constants} from './constants'
+import {Constants} from '../constants'
 import styles from './assets/css/style.css';
-import { NewIcons} from './constants'
-import * as utils from './dom-utils'
-import { createTemplate } from './template'
-import {test} from './main'
-import * as starter from './main'
+import { NewIcons} from '../constants'
+import * as utils from '../dom-utils'
+import { createTemplate } from '../template'
+import {test} from '../main'
+import * as starter from '../main'
 
 //test('hello world!')
 

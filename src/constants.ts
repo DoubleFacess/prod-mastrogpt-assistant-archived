@@ -64,7 +64,7 @@ export const NewIcons:any = {
 export const NewConstants: any = {
     //BOT_IMG: "/img/robot-mini.png",
     BOT_IMG: new URL('../web/img/robot-mini.png', import.meta.url).href,
-    PERSON_IMG: "/img/human-mini.png",
+    PERSON_IMG: new URL('../web/img/human-mini.png', import.meta.url),
     BOT_NAME: "BOT",
     PERSON_NAME: "YOU",
     // Page components
